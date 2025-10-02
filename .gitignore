@@ -1,4 +1,51 @@
-# Project exclude paths
-/out/
-/target/
+### Java ###
+*.class
+*.log
+*.ctxt
+
+# Environment variables
 .env
+.env.local
+.env.prod
+
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.settings/
+dependency-reduced-pom.xml
+release.properties
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+### VS Code ###
+.vscode/
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
+*.out
+*.tmp
+
+### Docker ###
+*.pid
+db_data/
+
+### Test / Coverage ###
+/surefire-reports/
+/failsafe-reports/
+/test-output/
+/jacoco.exec
+
+### Misc ###
+*.swp
+*.swo
+*~
