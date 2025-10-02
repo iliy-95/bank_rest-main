@@ -1,0 +1,41 @@
+#
+# application.yml — главный конфигурационный файл Spring Boot.
+
+server:
+  port: ${API_PORT:8080}
+
+spring:
+  application:
+    name: bank-cards-service
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+
+  liquibase:
+    change-log: classpath:db/migration/master.yaml
+
+  logging:
+    level:
+      root: INFO
+      org.springframework: DEBUG
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      org.springframework.orm.jpa: DEBUG
+      org.hibernate: DEBUG
+      org.springframework.transaction: TRACE
+      com.example.bankcards: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:MySuperSecretKeyThatIsAtLeast32BytesLong!!}
+  expiration: 3600000
+
+encryption:
+  aes-key: ${AES_KEY:MySecretKey12345}
+
