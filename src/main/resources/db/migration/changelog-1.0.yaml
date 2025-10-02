@@ -1,0 +1,282 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Ilya Bugay
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+  - changeSet:
+      id: 2
+      author: Ilya Bugay
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+              - column: { name: name, value: "ADMIN" }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
+              - column: { name: name, value: "USER" }
+
+  - changeSet:
+      id: 3
+      author: Ilya Bugay
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: full_name
+                  type: VARCHAR(100)
+              - column:
+                  name: role_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: now()
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: now()
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: id
+            constraintName: fk_users_role
+
+  - changeSet:
+      id: 4
+      author: Ilya Bugay
+      changes:
+        - createTable:
+            tableName: card_statuses
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+        - insert:
+            tableName: card_statuses
+            columns:
+              - column: { name: id, value: "11111111-1111-1111-1111-111111111111" }
+              - column: { name: name, value: "ACTIVE" }
+        - insert:
+            tableName: card_statuses
+            columns:
+              - column: { name: id, value: "22222222-2222-2222-2222-222222222222" }
+              - column: { name: name, value: "BLOCKED" }
+        - insert:
+            tableName: card_statuses
+            columns:
+              - column: { name: id, value: "33333333-3333-3333-3333-333333333333" }
+              - column: { name: name, value: "EXPIRED" }
+
+  - changeSet:
+      id: 5
+      author: Ilya Bugay
+      changes:
+        - createTable:
+            tableName: cards
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: number_encrypted
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: holder_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: NUMERIC(15,2)
+                  defaultValueNumeric: 0
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: now()
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: now()
+        - addForeignKeyConstraint:
+            baseTableName: cards
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_cards_user
+        - addForeignKeyConstraint:
+            baseTableName: cards
+            baseColumnNames: status_id
+            referencedTableName: card_statuses
+            referencedColumnNames: id
+            constraintName: fk_cards_status
+
+  - changeSet:
+      id: 6
+      author: Ilya Bugay
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: from_card_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: to_card_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: NUMERIC(15,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: now()
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: from_card_id
+            referencedTableName: cards
+            referencedColumnNames: id
+            constraintName: fk_tx_from_card
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: to_card_id
+            referencedTableName: cards
+            referencedColumnNames: id
+            constraintName: fk_tx_to_card
+
+  - changeSet:
+      id: 7
+      author: Ilya Bugay
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: "99999999-9999-9999-9999-999999999999" }
+              - column: { name: username, value: "admin1" }
+              - column: { name: password, value: "$2a$12$rzQ2IiRykcRFAHY1YCi8neQZ0MJs52j9eKembPzXXHwkjnTixoI0q" } #ChangeMe123!
+              - column: { name: full_name, value: "ADMIN USER" }
+              - column: { name: role_id, value: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }
+
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: "88888888-8888-8888-8888-888888888888" }
+              - column: { name: username, value: "user1" }
+              - column: { name: password, value: "$2a$12$nyfQAl6cngUoTu2m5WGpkOaQJqUmAhIZgUSF4NcGOlHOCfZFWbyfW" }
+              - column: { name: full_name, value: "JOHN DOE" }
+              - column: { name: role_id, value: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" }
+
+        - insert:
+            tableName: cards
+            columns:
+              - column: { name: id, value: "aaaa1111-aaaa-1111-aaaa-111111111111" }
+              - column: { name: number_encrypted, value: "encrypted_1234" }
+              - column: { name: holder_name, value: "ALEX MERSER" }
+              - column: { name: expiry_date, value: "2027-12-31" }
+              - column: { name: status_id, value: "11111111-1111-1111-1111-111111111111" }
+              - column: { name: balance, value: 1000.00 }
+              - column: { name: user_id, value: "88888888-8888-8888-8888-888888888888" }
+
+        - insert:
+            tableName: cards
+            columns:
+              - column: { name: id, value: "bbbb2222-bbbb-2222-bbbb-222222222222" }
+              - column: { name: number_encrypted, value: "encrypted_5678" }
+              - column: { name: holder_name, value: "ADMIN USER" }
+              - column: { name: expiry_date, value: "2025-06-30" }
+              - column: { name: status_id, value: "11111111-1111-1111-1111-111111111111" }
+              - column: { name: balance, value: 5000.00 }
+              - column: { name: user_id, value: "99999999-9999-9999-9999-999999999999" }
+

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9-fix-last-four-digits
+      author: Ilya Bugay
+      changes:
+        - addColumn:
+            tableName: cards
+            columns:
+              - column:
+                  name: last_four_digits
+                  type: VARCHAR(4)
